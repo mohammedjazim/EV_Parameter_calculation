@@ -1,0 +1,151 @@
+                            %Inputs
+clear;
+clc;
+
+
+addpath C:\Users\mohmd\OneDrive\Documents\Assignment_EV\LIB\Functions
+
+
+
+mass                      = input ('Enter_vehicle_mass : ');
+Drag_coeff                = input ('Enter_vehicle_drag_coeff : '); 
+Frontal_area_of_vehicle   = input ('Enter_frontal_area_of_vehicle : ');
+Gear_ratio                = input ('Enter_gear_ratio_of_vehicle : ');
+
+
+
+                            %Drive_cycle
+
+Indian_drivecycle      = readmatrix("Assignment_EV\Drive_cycle\IDC.xlsx");
+velocity               = Indian_drivecycle(:,2);
+run_time_of_vehicle    = Indian_drivecycle(:,1);
+
+                   %Calculation_of_resistive_force
+
+Drag_due_to_wind = Drag_air(velocity,Drag_coeff,Frontal_area_of_vehicle );
+display(Drag_due_to_wind)
+
+Coeff_of_friction = coeff_friction(velocity);
+display(Coeff_of_friction)
+
+Rolling_resistance = rolling_rest(Coeff_of_friction,mass);
+display(Rolling_resistance)
+
+Bearing_and_mechanical_friction = b_and_m_friction (mass);
+display(Bearing_and_mechanical_friction)
+
+
+
+
+                        %Calculation_of_vehicle_shaft
+
+Shaft_force = force_shaft(Drag_due_to_wind,Rolling_resistance,Bearing_and_mechanical_friction);
+display(Shaft_force)
+
+Shaft_power = Shaft_pwr(Shaft_force,velocity);
+display(Shaft_power)
+
+Shaft_speed = shaft_spd(velocity);
+display(Shaft_speed)
+
+Shaft_torque = Shft_trq (Shaft_force);
+display(Shaft_torque)
+
+
+
+                        %Motor_parameters
+
+Motor_torque = motor_trq(Shaft_torque);
+display(Motor_torque)
+
+Motor_speed = Motor_spd(Shaft_speed,Gear_ratio );
+display(Motor_speed)
+
+Motor_power = motor_pwr(Motor_speed,Motor_torque);
+display(Motor_power)
+
+
+
+                       %Calculation_of_battery_power
+
+Battery_power = Battery_pwr(Motor_speed);
+display(Battery_power)
+
+Battery_current = battery_crnt(Battery_power);
+display(Battery_current)
+
+Charge_consumed = charge_consuption(Battery_current,run_time_of_vehicle);
+display(Charge_consumed)
+
+State_of_charge = State_of_chrg(Charge_consumed);
+display(State_of_charge)
+
+Range_of_vehicle_in_km = range_of_vech(run_time_of_vehicle,velocity);
+display(Range_of_vehicle_in_km)
+
+
+                            %Calculation_of_Acceleration
+
+MWHEEL = mwhl(Motor_torque,Gear_ratio);
+display(MWHEEL)
+
+FWHEEL = fwhl(MWHEEL);
+display(FWHEEL)
+
+Acceleration= ACC(FWHEEL,mass,velocity);
+display(Acceleration)
+
+
+Range = rng (Range_of_vehicle_in_km);
+display(Range)
+
+
+
+%Plot
+
+set(groot,'DefaultFigureRenderer','painters')
+
+
+
+subplot (2,1,1)
+IDC = plot (run_time_of_vehicle,velocity);
+xlabel ("Time");
+ylabel ("Velocity");
+grid on
+title('Velocity VS Run time of vehicle')
+subplot(2,1,2)
+shft_frc= plot(run_time_of_vehicle,Shaft_force);
+xlabel ("Time");
+ylabel ("Shaft Force");
+grid on
+title('Shaft Force VS Run time of vehicle')
+
+figure
+
+subplot (2,1,1)
+shft_pwr = plot (run_time_of_vehicle,Shaft_power);
+xlabel ("Time");
+ylabel ("Shaft power");
+grid on
+title('Shaft power VS Run time of vehicle')
+subplot(2,1,2)
+mtr_pwr = plot(run_time_of_vehicle,Motor_power);
+xlabel ("Time");
+ylabel ("Motor power");
+grid on
+title('Motor power VS Run time of vehicle')
+
+figure
+
+subplot (2,1,1)
+bat_pwr = plot(run_time_of_vehicle,Battery_power);
+xlabel ("Time");
+ylabel ("Battery power");
+grid on
+title('Battery power VS Run time of vehicle')
+subplot(2,1,2)
+soc = plot(run_time_of_vehicle,State_of_charge);
+xlabel("Time")
+ylabel("SOC")
+grid on
+title('State of charge VS Run time of vehicle')
